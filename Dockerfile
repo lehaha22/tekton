@@ -1,9 +1,17 @@
-FROM golang:1.14-alpine
+FROM alpine
+WORKDIR /home
 
-WORKDIR /go/src/app
-COPY . .
+# 修改alpine源为阿里云
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories && \
+  apk update && \
+  apk upgrade && \
+  apk add ca-certificates && update-ca-certificates && \
+  apk add --update tzdata && \
+  rm -rf /var/cache/apk/*
 
-RUN go get -d -v ./...
-RUN go install -v ./...
+COPY app /home/
+ENV TZ=Asia/Shanghai
 
-CMD ["app"]
+EXPOSE 8080
+
+ENTRYPOINT ./app
