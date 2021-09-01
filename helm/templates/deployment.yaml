@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ChatName.fullname" . }}
+  labels:
+    app: {{ include "ChatName.name" . }}
+    chart: {{ include "ChatName.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "ChatName.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "ChatName.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}{{ .Chart.Name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+          - mountPath: /data/logs
+            name: log-dir
+          - name: localtime
+            mountPath: /etc/localtime
+          ports:
+            - name: http
+              containerPort: {{ .Values.container.containerPort }}
+              protocol: TCP
+          {{ if .Values.containerEnv.enabled -}}
+          env:
+{{ toYaml .Values.containerEnv.env | indent 10}}
+          {{ end }}
+          {{- with .Values.readinessProbe -}}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: log-dir
+        emptyDir: {}
+      - name: localtime
+        hostPath:
+          path: /etc/localtime      

@@ -1,0 +1,89 @@
+image:
+  repository: digitalcity-registry.cn-beijing.cr.aliyuncs.com/gyd/
+  tag: latest
+  pullPolicy: IfNotPresent
+  name: platform-portal
+
+chart:
+  version: 0.1.0
+
+# 若是拉取私有仓库的镜像：
+### ① 打开下面的注释
+### ② 则需要将私有仓库的地址、用户名、密码发送给我，我会去创建私有镜像拉取认证；
+### ③ 修改【harbor-auth】的名字
+imagePullSecrets:
+   - name: digitalcity-aliyun-docker
+
+container:
+  containerPort: 8080
+
+containerEnv:
+  enabled: false
+  env:
+    - name: JAVA_TOOL_OPTIONS
+      value:
+
+resources:
+  limits:
+    cpu: 50m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+### http协议 ###
+readinessProbe:
+  httpGet:
+    path: "/"
+    port: 8080
+  periodSeconds: 10
+  initialDelaySeconds: 30
+  failureThreshold: 6
+
+### TCP 协议 ###
+# readinessProbe:
+#   tcpSocket:
+#     port: 80
+#     initialDelaySeconds: 50
+#     periodSeconds: 60
+
+affinity:
+  enabled: false
+  nodeAffinity:
+    value: testing
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+  connectType: http
+
+ingressRoute:
+  enabled: false
+# https: false
+  labels: {}
+  hosts: www.glodon.com
+  # port: 80
+  path: /platform
+
+# 一定要注意，如果需要http 转 https 那么 ingressRoute.https 一定要为true
+ingressRedirect:
+  enabled: false
+
+# 存储
+# persistenceStorageRbd:
+#   enabled: false
+#   volumeName: rbd
+#   accessMode: ReadWriteOnce
+#   storageclassesName: csi-rbd-sc
+#   size:
+
+# persistenceStorageCephfs:
+#   enabled: false
+#   volumeName:
+#   accessMode: ReadWriteMany
+#   storageclassesName: csi-cephfs-sc
+#   size:
+
+# configmap
+# secrets

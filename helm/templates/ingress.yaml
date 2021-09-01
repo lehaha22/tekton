@@ -1,0 +1,29 @@
+{{- if .Values.ingressRoute.enabled -}}
+{{- $fullName := include "ChatName.fullname" . -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/cors-allow-headers: DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization
+    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, DELETE, POST, OPTIONS
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/service-weight: ""
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  name: {{ $fullName }}
+  labels:
+    app: {{ include "ChatName.name" . }}
+    chart: {{ include "ChatName.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  rules:
+  - host: {{ .Values.ingressRoute.hosts }}
+    http:
+      paths:
+      - backend:
+          serviceName: {{ $fullName }}
+          servicePort: {{ .Values.service.port }}
+        path: {{ .Values.ingressRoute.path }}(/|$)(.*)
+{{- end -}}
