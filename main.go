@@ -1,21 +1,36 @@
-package tekton_go
+package tekton_k8s
 
-// split/split.go
+import (
+	"fmt"
+	"sort"
+)
 
-import "strings"
+func Countstr(str string)  (result map[int]int) {
 
-// split package with a single split function.
-
-// Split slices s into all substrings separated by sep and
-// returns a slice of the substrings between those separators.
-func Split(s, sep string) (result []string) {
-	i := strings.Index(s, sep)
-
-	for i > -1 {
-		result = append(result, s[:i])
-		s = s[i+len(sep):] // 这里使用len(sep)获取sep的长度
-		i = strings.Index(s, sep)
+	map1 := make(map[int]int)
+	for i := 0; i < len(str); i++ {
+		if map1[int(str[i])] == 0 {
+			map1[int(str[i])] = 1
+		} else if map1[int(str[i])] > 0 {
+			num := map1[int(str[i])]
+			map1[int(str[i])] = num + 1
+		}
 	}
-	result = append(result, s)
+	//for key,count:= range map1 {
+	//	fmt.Printf("%c : %d   \n",key,count)
+	//}
+
+	keys := make([]int, 0, len(map1))
+	for key := range map1 {
+		keys = append(keys, int(key))
+	}
+	sort.Ints(keys)
+	result = make(map[int]int)
+	for _ ,key := range keys {
+		fmt.Printf("%c : %d \n",key,map1[key])
+		result[key] = map1[key]
+
+
+	}
 	return
 }
