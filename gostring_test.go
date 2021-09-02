@@ -1,4 +1,4 @@
-package tekton_k8s
+package main
 
 import (
 	"reflect"
