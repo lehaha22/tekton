@@ -34,3 +34,8 @@ func Countstr(str string)  (result map[int]int) {
 	}
 	return
 }
+
+func main() {
+   str := "aaabb123xwwwez23wZZF"
+   Countstr(str)
+}
